@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  django:
+    build: .
+    command: >
+      sh -c "sleep 5 && python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    #      python manage.py collectstatic --noinput &&
+    ports:
+      - "8000:8000"
+    environment:
+      #      - postgres uchun
+      - DJANGO_DB=django.db.backends.postgresql
+      - DB_NAME=compose_postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=1
+      - DB_PORT=5432
+      - DB_HOST=postgres_db
+      #      - minio uchun
+      - AWS_ACCESS_KEY_ID=076214b3c440584a
+      - AWS_SECRET_ACCESS_KEY=8f23571de77824d7
+
+  #  postgres_db:
+  #    build:
+  #      context: .Dockerfile_pg
+  #    ports:
+  #      - "5433:5432"
+  #    environment:
+  #      - POSTGRES_USER=postgres
+  #      - POSTGRES_DB=compose_postgres
+  #      - POSTGRES_PASSWORD=1
+  #    volumes:
+  #      - pgdata:/var/lib/postgresql/data
+
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+      - "9090:9090"
+    environment:
+      - MINIO_ACCESS_KEY=076214b3c440584a
+      - MINIO_SECRET_KEY=8f23571de77824d7
+    #      - MINIO_ROOT_USER=admin
+    #      - MINIO_ROOT_PASSWORD=1
+    command: server /export --console-address :9001
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      apk add nc &&
+      while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; sleep 5 &&
+      /usr/bin/mc config host add myminio http://minio:9000 076214b3c440584a 8f23571de77824d7;
+      /usr/bin/mc mb myminio/my-local-bucket;
+      /usr/bin/mc policy download myminio/my-local-bucket;
+      exit 0;
+      "
+
+volumes:
+  pgdata:

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "drf-ecommerce"
+version = "0.1.0"
+description = ""
+authors = ["sattorovsharofiddin <cyberpancher10@gmail.com>"]
+readme = "README.md"
+packages = [{include = "drf_ecommerce"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.2.2"
+django-mptt = "^0.14.0"
+djangorestframework = "^3.14.0"
+drf-yasg = "^1.21.6"
+pillow = "^9.5.0"
+djangorestframework-simplejwt = "^5.2.2"
+boto3 = "^1.26.157"
+python-dotenv = "^1.0.0"
+django-filter = "^23.2"
+coreapi = "^2.3.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
